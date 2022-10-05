@@ -3,13 +3,13 @@ import dotenv from "dotenv";
 import mongoose from "mongoose";
 import NewLetter from "./model/models";
 import { newLetterEmail } from "./mailer";
-
+import cors from "cors";
 dotenv.config();
 
 const app: Express = express();
 const port = process.env.PORT || 8000;
 app.use(express.json());
-
+app.use(cors());
 app.get("/", (req: Request, res: Response) => {
   res.send("Express + TypeScript Server");
 });
@@ -25,12 +25,9 @@ mongoose.connect(process.env.MONGODB_URL as string, options, () => {
 console.log(mongoose.connection.readyState);
 
 app.post("/newsletter", async (req: Request, res: Response) => {
-  let { name, email, message } = req.body;
-  name = name.trim();
-  email = email.trim();
-  message = message.trim();
+  let { name, email} = req.body;
 
-  if (!name || !email || !message) {
+  if (!name || !email) {
     res.status(400).json({ message: "missing credential!" });
   }
   try {
@@ -38,18 +35,16 @@ app.post("/newsletter", async (req: Request, res: Response) => {
     if (user) {
       return res
         .status(423)
-        .send({ status: false, message: "user already exist" });
+        .json({ status: false, message: "user already exist" });
     }
 
     let data = new NewLetter({
       name: name,
       email: email,
-      message: message,
     });
     data.save();
-  const result=   await newLetterEmail(email, name)
+    await newLetterEmail(email, name);
 
-  console.log(result)
     res
       .status(201)
       .json({ message: data, success: "newsletter added successfully!" });
