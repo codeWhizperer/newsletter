@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 export const mailSenderConfig = {
     from: "hello@chainedthrift.com",
-    emailSubject: "NewsLetter",
+    emailSubject: "Welcome to Chained Thrift",
     replyTo: "hello@chainedthrift.com",
   };
 
